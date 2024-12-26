@@ -1,31 +1,37 @@
 <template>
     <div class="user-story">
-        <textarea v-if="editing" name="" id="" v-model="editableDescription"></textarea>
-            <p v-if="!editing">{{ userStory.description }}</p>
+        <textarea ref="textarea" v-model="input"></textarea>
         <div class="flex">
-            <button class="text" @click="toggleEditing">{{ editing ? 'Cancel' : 'Edit' }}</button>
-            <button class="text" v-if="editing">Save</button>
-            <button class="text red" v-else>Delete</button>
+            <button class="text red" @click="deleteStory">Delete</button>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useTextareaAutosize } from "@vueuse/core";
+
 const props = defineProps<{
     userStory: UserStory;
 }>();
 
-const editing = ref<boolean>(true);
-const editableDescription = ref<string>("");
+const emit = defineEmits(["story-deleted"]);
+
+const { textarea, input } = useTextareaAutosize();
+
 onMounted(() => {
-    editableDescription.value = props.userStory.description;
+    input.value = props.userStory.description;
 });
 
-const toggleEditing = () => {
-    if (editing.value) {
-        editableDescription.value = props.userStory.description;
+const deleteStory = async () => {
+    try {
+        await $fetch(`/api/user-story/${props.userStory.id}`, {
+            method: "DELETE",
+        });
+        emit("story-deleted");
     }
-    editing.value = !editing.value;
+    catch (err: any) {
+        console.log(err.response);
+    }
 };
 </script>
 
@@ -39,7 +45,20 @@ const toggleEditing = () => {
 
     textarea {
         width: 100%;
-        padding: 0.5rem;
+        resize: none;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        padding: 0.5rem 1rem;
+        line-height: 1.5;
+        border: none;
+        outline: none;
+        border-radius: 0.5rem;
+        background-color: #444;
+        color: #ccc;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
     }
 
     .flex {
