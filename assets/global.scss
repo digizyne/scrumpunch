@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
+:root {
+    color: #ccc;
+    font-family: "Space Grotesk", serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #151515;
+}
+
+button {
+    background-color: white;
+    color: #151515;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    outline: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+
+    &.text {
+        background-color: transparent;
+        color: #ccc;
+        text-decoration: underline;
+        padding: 0.25rem;
+        cursor: pointer;
+    }
+}
+
+.v-enter-active,
+.v-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+}

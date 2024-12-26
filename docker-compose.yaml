@@ -1,0 +1,18 @@
+name: scrumpunch
+
+networks:
+  scrumpunch-net:
+
+volumes:
+  scrumpunch-db-vol:
+
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+     - scrumpunch-db-vol:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
