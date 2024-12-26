@@ -2,13 +2,22 @@
     <div class="user-story">
         <textarea ref="textarea" v-model="input"></textarea>
         <div class="flex">
-            <button class="text red" @click="deleteStory">Delete</button>
+            <button :class="['red', { confirming }]" @click="handleDelete">
+                <div class="flex-small" v-if="!confirming">
+                    <Icon name="ph:trash-duotone" />
+                    Delete
+                </div>
+                <div v-else class="flex-small">
+                    <div>Confirm Delete</div>
+                    <div>({{ countdown }})</div>
+                </div>
+            </button>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { useTextareaAutosize } from "@vueuse/core";
+import { useTextareaAutosize, watchDebounced } from "@vueuse/core";
 
 const props = defineProps<{
     userStory: UserStory;
@@ -21,6 +30,45 @@ const { textarea, input } = useTextareaAutosize();
 onMounted(() => {
     input.value = props.userStory.description;
 });
+
+watchDebounced(input, async () => {
+    if (!input.value || input.value === '') return;
+
+    try {
+        await $fetch(`/api/user-story/${props.userStory.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+                description: input.value,
+            }),
+        });
+    }
+    catch (err: any) {
+        console.log(err.response);
+    }
+}, {
+    debounce: 2500,
+    maxWait: 5000,
+})
+
+const confirming = ref<boolean>(false);
+const countdown = ref<number>(5);
+
+const handleDelete = async () => {
+    if (confirming.value) {
+        await deleteStory();
+        return;
+    }
+
+    confirming.value = true;
+    const interval = setInterval(() => {
+        countdown.value--;
+        if (countdown.value === 0) {
+            confirming.value = false;
+            countdown.value = 5;
+            clearInterval(interval);
+        }
+    }, 1000);
+};
 
 const deleteStory = async () => {
     try {
@@ -66,10 +114,24 @@ const deleteStory = async () => {
         gap: 1rem;
         justify-content: flex-end;
         margin-top: 1rem;
+
+        .flex-small {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
     }
 }
 
 .red {
-    color: rgb(243, 76, 76);
+    background-color: #ffa1a2;
+    color: #151515;
+    // transition: all 0.15s linear;
+}
+
+.confirming {
+    background-color: #300708;
+    color: #f0f2f4;
 }
 </style>

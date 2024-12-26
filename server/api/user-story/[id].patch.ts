@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const { description } = await readValidatedBody(event, (body) => bodySchema.parse(body));
-    await pool.query('UPDATE user_story SET description=$1 WHERE id=$2', [description, id]);
+    await pool.query('UPDATE user_story SET description=$1, updated_at=NOW() WHERE id=$2', [description, id]);
 
     setResponseStatus(event, 200);
     return {
