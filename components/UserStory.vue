@@ -1,8 +1,14 @@
 <template>
     <div class="user-story">
-        <textarea ref="textarea" v-model="input"></textarea>
+        <textarea ref="textarea" v-model="input"
+            :placeholder="newStory ? 'I want to...' : `User story will be deleted if left blank in ${emptyCountdown}`"></textarea>
         <div class="flex">
-            <button :class="['red', { confirming }]" @click="handleDelete">
+            <button v-if="newStory" class="green" @click="updateStory">
+                <Icon name="ph:plus-bold" />
+                Create
+            </button>
+
+            <button v-else :class="['red', { confirming }]" @click="handleDelete">
                 <div class="flex-small" v-if="!confirming">
                     <Icon name="ph:trash-duotone" />
                     Delete
@@ -20,30 +26,36 @@
 import { useTextareaAutosize, watchDebounced } from "@vueuse/core";
 
 const props = defineProps<{
-    userStory: UserStory;
+    story: UserStory;
+    newStory?: boolean;
 }>();
 
-const emit = defineEmits(["story-deleted"]);
+const emit = defineEmits(["story-deleted", "story-updated"]);
 
 const { textarea, input } = useTextareaAutosize();
 
 onMounted(() => {
-    input.value = props.userStory.description;
+    input.value = props.story.description;
 });
 
 watchDebounced(input, async () => {
-    if (!input.value || input.value === '') return;
+    if (!input.value || input.value === '') {
+        if (props.newStory) {
+            return;
+        }
 
-    try {
-        await $fetch(`/api/user-story/${props.userStory.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({
-                description: input.value,
-            }),
-        });
+        const interval = setInterval(async () => {
+            emptyCountdown.value--;
+            if (emptyCountdown.value === 0) {
+                await deleteStory();
+                emptyCountdown.value = 15;
+                clearInterval(interval);
+            }
+        }, 1000);
     }
-    catch (err: any) {
-        console.log(err.response);
+
+    else if (!props.newStory) {
+        await updateStory();
     }
 }, {
     debounce: 2500,
@@ -52,6 +64,7 @@ watchDebounced(input, async () => {
 
 const confirming = ref<boolean>(false);
 const countdown = ref<number>(5);
+const emptyCountdown = ref<number>(15);
 
 const handleDelete = async () => {
     if (confirming.value) {
@@ -70,9 +83,26 @@ const handleDelete = async () => {
     }, 1000);
 };
 
+const updateStory = async () => {
+    if (!input.value || input.value === '') return;
+
+    try {
+        await $fetch(`/api/user-story/${props.story.id}`, {
+            method: "PUT",
+            body: JSON.stringify({
+                description: input.value,
+            }),
+        });
+        emit("story-updated");
+    }
+    catch (err: any) {
+        console.log(err.response);
+    }
+};
+
 const deleteStory = async () => {
     try {
-        await $fetch(`/api/user-story/${props.userStory.id}`, {
+        await $fetch(`/api/user-story/${props.story.id}`, {
             method: "DELETE",
         });
         emit("story-deleted");
@@ -88,7 +118,6 @@ const deleteStory = async () => {
     background-color: #333;
     color: #ccc;
     padding: 1rem;
-    margin: 1rem;
     border-radius: 0.5rem;
 
     textarea {
@@ -113,7 +142,6 @@ const deleteStory = async () => {
         display: flex;
         gap: 1rem;
         justify-content: flex-end;
-        margin-top: 1rem;
 
         .flex-small {
             display: flex;
@@ -127,6 +155,14 @@ const deleteStory = async () => {
 .red {
     background-color: #ffa1a2;
     color: #151515;
+    margin-top: 1rem;
+    // transition: all 0.15s linear;
+}
+
+.green {
+    background-color: #a1ffa1;
+    color: #151515;
+    margin-top: 1rem;
     // transition: all 0.15s linear;
 }
 
