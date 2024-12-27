@@ -7,6 +7,8 @@
 
         <UserStory :story="newStory" new-story @story-updated="updateStory" />
 
+        <hr />
+
         <UserStory v-for="story in userStories" :key="story.id" :story="story" @story-deleted="refresh">
         </UserStory>
     </div>
@@ -61,6 +63,14 @@ const updateStory = async () => {
             left: auto;
             right: -225px;
         }
+    }
+
+    hr {
+        border: none;
+        outline: none;
+        border-top: 1px solid #333;
+        width: 99%;
+        margin: 0 auto;
     }
 }
 </style>
