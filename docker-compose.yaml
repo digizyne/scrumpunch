@@ -3,16 +3,35 @@ name: scrumpunch
 networks:
   scrumpunch-net:
 
+
 volumes:
   scrumpunch-db-vol:
 
+
 services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - scrumpunch-net
+
   db:
     image: postgres
     restart: always
     ports:
       - "5432:5432"
     volumes:
-     - scrumpunch-db-vol:/var/lib/postgresql/data
+      - scrumpunch-db-vol:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - scrumpunch-net

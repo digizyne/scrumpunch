@@ -55,8 +55,8 @@ const updateStory = async () => {
             left: -225px;
             width: 200px;
             height: 10px;
-            border-top: 1px solid #f0f2f4;
-            border-bottom: 1px solid #f0f2f4;
+            border-top: 1px solid #a1ffa1;
+            border-bottom: 1px solid #a1ffa1;
         }
 
         &::after {
