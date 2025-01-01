@@ -1,14 +1,18 @@
 <template>
-    <div :class="['user-story', { blurred }]">
+    <div class="feature">
         <textarea ref="textarea" v-model="input"
-            :placeholder="newStory ? 'I want to...' : `User story will be deleted if left blank in ${emptyCountdown}`"></textarea>
+            :placeholder="newFeature ? 'New feature...' : `Feature will be deleted if left blank in ${emptyCountdown}`"></textarea>
         <div class="flex">
-            <button v-if="newStory" class="green" @click="updateStory">
+            <button v-if="newFeature" class="green" @click="updateFeature">
                 <Icon name="ph:plus-bold" />
                 Create
             </button>
 
             <div v-else class="actions">
+                <button :class="['expand']" @click="showFeatures = !showFeatures">
+                    <Icon :name="`ph:caret-${showFeatures ? 'up' : 'down'}-duotone`" />
+                    {{ showFeatures ? 'Hide' : 'Show' }} Features
+                </button>
                 <button :class="['red', { confirming }]" @click="handleDelete">
                     <div class="flex-small" v-if="!confirming">
                         <Icon name="ph:trash-duotone" />
@@ -19,53 +23,33 @@
                         <div>({{ countdown }})</div>
                     </div>
                 </button>
-                <button :class="['expand']" @click="expandStory">
-                    {{ expandedStory ? 'Hide' : 'Show' }} Features
-                    <Icon :name="`ph:arrow-fat-${expandedStory ? 'left' : 'right'}-duotone`" />
-                </button>
             </div>
         </div>
-        <!-- <div v-if="story.features?.length && showFeatures" class="features">
-            <button v-for="feature in story.features" :key="feature.id" class="feature">
+        <div v-if="feature.features?.length && showFeatures" class="features">
+            <button v-for="feature in feature.features" :key="feature.id" class="feature">
                 <div>{{ feature.description }}</div>
                 <Icon name="ph:arrow-fat-right-duotone" />
             </button>
-        </div> -->
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useTextareaAutosize, watchDebounced } from "@vueuse/core";
 
-const expandedStory = useExpandedStory();
-
 const props = defineProps<{
-    story: UserStory;
-    newStory?: boolean;
-    // blurred?: boolean;
+    feature: any;
+    newFeature?: boolean;
 }>();
 
-const emit = defineEmits(["story-deleted", "story-updated"]);
+const emit = defineEmits(["feature-deleted", "feature-updated"]);
 
 const { textarea, input } = useTextareaAutosize();
 const initialRender = ref<boolean>(true);
 const showFeatures = ref<boolean>(false);
 
 onMounted(() => {
-    input.value = props.story.description;
-});
-
-const expandStory = () => {
-    if (expandedStory.value) {
-        expandedStory.value = null;
-    }
-    else {
-        expandedStory.value = props.story;
-    }
-};
-
-const blurred = computed<boolean>(() => {
-    return expandedStory.value !== null && expandedStory.value.id !== props.story.id;
+    input.value = props.feature.description;
 });
 
 watchDebounced(input, async () => {
@@ -74,22 +58,22 @@ watchDebounced(input, async () => {
         return;
     }
     if (!input.value || input.value === '') {
-        if (props.newStory) {
+        if (props.newFeature) {
             return;
         }
 
         const interval = setInterval(async () => {
             emptyCountdown.value--;
             if (emptyCountdown.value === 0) {
-                await deleteStory();
+                await deletefeature();
                 emptyCountdown.value = 15;
                 clearInterval(interval);
             }
         }, 1000);
     }
 
-    else if (!props.newStory) {
-        await updateStory();
+    else if (!props.newFeature) {
+        await updateFeature();
     }
 }, {
     debounce: 2500,
@@ -102,7 +86,7 @@ const emptyCountdown = ref<number>(15);
 
 const handleDelete = async () => {
     if (confirming.value) {
-        await deleteStory();
+        await deletefeature();
         return;
     }
 
@@ -117,30 +101,30 @@ const handleDelete = async () => {
     }, 1000);
 };
 
-const updateStory = async () => {
+const updateFeature = async () => {
     console.log("this is running")
     if (!input.value || input.value === '') return;
 
     try {
-        await $fetch(`/api/user-story/${props.story.id}`, {
+        await $fetch(`/api/user-feature/${props.feature.id}`, {
             method: "PUT",
             body: JSON.stringify({
                 description: input.value,
             }),
         });
-        emit("story-updated");
+        emit("feature-updated");
     }
     catch (err: any) {
         console.log(err.response);
     }
 };
 
-const deleteStory = async () => {
+const deletefeature = async () => {
     try {
-        await $fetch(`/api/user-story/${props.story.id}`, {
+        await $fetch(`/api/user-feature/${props.feature.id}`, {
             method: "DELETE",
         });
-        emit("story-deleted");
+        emit("feature-deleted");
     }
     catch (err: any) {
         console.log(err.response);
@@ -149,17 +133,11 @@ const deleteStory = async () => {
 </script>
 
 <style scoped lang="scss">
-.user-story {
+.feature {
     background-color: #333;
     color: #ccc;
     padding: 1rem;
     border-radius: 0.5rem;
-    transition: all 0.35s ease;
-
-    &.blurred {
-        opacity: 0.05;
-        filter: blur(5px);
-    }
 
     textarea {
         width: 100%;
@@ -189,10 +167,10 @@ const deleteStory = async () => {
             gap: 1rem;
             margin-top: 1rem;
             width: 100%;
-            justify-content: space-between;
+            align-items: flex-start;
 
             .expand {
-                // flex: 1;
+                flex: 1;
                 background-color: #151515;
                 color: #ccc;
             }

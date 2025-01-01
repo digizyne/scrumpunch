@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
 
         const { include_features } = await getValidatedQuery(event, querySchema.parse);
         if (include_features !== undefined && include_features === "true") {
-            console.log("here")
             userStories = await Promise.all(userStories.map(async (story) => {
                 const featureRes = await pool.query('SELECT * FROM feature WHERE user_story_id=$1', [story.id]);
                 const { rows: features } = featureRes;
