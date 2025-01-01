@@ -1,0 +1,8 @@
+User Story: As a user, I want to be able to register an account
+	Feature: Registration
+		Concern: Frontend
+			Task: Desktop UI for registration page
+			Task: Tablet UI for registration page
+			Task: Mobile UI for registration page
+			Task: Add client-side validation to form
+			Task: Implement error handling 
