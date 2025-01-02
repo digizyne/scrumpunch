@@ -1,5 +1,5 @@
 <template>
-    <div :class="['user-story', { blurred }]">
+    <div :class="['user-story', { blurred, expanded: expandedStory }]">
         <textarea ref="textarea" v-model="input"
             :placeholder="newStory ? 'I want to...' : `User story will be deleted if left blank in ${emptyCountdown}`"></textarea>
         <div class="flex">
@@ -20,8 +20,8 @@
                     </div>
                 </button>
                 <button :class="['expand']" @click="expandStory">
-                    {{ expandedStory ? 'Hide' : 'Show' }} Features
-                    <Icon :name="`ph:arrow-fat-${expandedStory ? 'left' : 'right'}-duotone`" />
+                    {{ selected ? 'Hide' : 'Show' }} Features
+                    <Icon :name="`ph:arrow-fat-${selected ? 'left' : 'right'}-duotone`" />
                 </button>
             </div>
         </div>
@@ -43,7 +43,6 @@ const expandedStoryFeatures = useExpandedStoryFeatures();
 const props = defineProps<{
     story: UserStory;
     newStory?: boolean;
-    // blurred?: boolean;
 }>();
 
 const emit = defineEmits(["story-deleted", "story-updated"]);
@@ -69,6 +68,9 @@ const expandStory = () => {
 
 const blurred = computed<boolean>(() => {
     return expandedStory.value !== null && expandedStory.value.id !== props.story.id;
+});
+const selected = computed<boolean>(() => {
+    return expandedStory.value !== null && expandedStory.value.id === props.story.id;
 });
 
 watchDebounced(input, async () => {
@@ -157,6 +159,11 @@ const deleteStory = async () => {
     padding: 1rem;
     border-radius: 0.5rem;
     transition: all 0.35s ease;
+
+    &.expanded {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
 
     &.blurred {
         opacity: 0.05;

@@ -1,13 +1,12 @@
 <template>
     <div class="container" :style="{ left }">
-        <h1>As a user</h1>
+        <h1 :class="{ blurred: expandedStory }">As a user</h1>
 
         <UserStory :story="newStory" new-story @story-updated="updateStory" />
 
-        <hr />
+        <hr :class="{ blurred: expandedStory }" />
 
-        <UserStory v-for="story in props.userStories" :key="story.id" blurred :story="story"
-            @story-deleted="emit('refresh')">
+        <UserStory v-for="story in props.userStories" :key="story.id" :story="story" @story-deleted="emit('refresh')">
         </UserStory>
     </div>
 </template>
@@ -55,6 +54,12 @@ const updateStory = () => {
         position: relative;
         max-width: max-content;
         margin: 0 auto;
+        transition: all 0.35s ease;
+
+        &.blurred {
+            opacity: 0.05;
+            filter: blur(5px);
+        }
 
         &::before,
         &::after {
@@ -80,6 +85,11 @@ const updateStory = () => {
         border-top: 1px solid #333;
         width: 99%;
         margin: 0 auto;
+
+        &.blurred {
+            opacity: 0.05;
+            filter: blur(5px);
+        }
     }
 }
 </style>

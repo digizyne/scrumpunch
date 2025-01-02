@@ -1,7 +1,7 @@
 <template>
     <div :class="['feature', { blurred }]">
         <textarea ref="textarea" v-model="input"
-            :placeholder="newFeature ? 'I want to...' : `Feature will be deleted if left blank in ${emptyCountdown}`"></textarea>
+            :placeholder="newFeature ? 'New feature...' : `Feature will be deleted if left blank in ${emptyCountdown}`"></textarea>
         <div class="flex">
             <button v-if="newFeature" class="green" @click="updateFeature">
                 <Icon name="ph:plus-bold" />
@@ -147,8 +147,8 @@ const deleteFeature = async () => {
 </script>
 
 <style scoped lang="scss">
-.user-story {
-    background-color: #333;
+.feature {
+    background-color: #575757;
     color: #ccc;
     padding: 1rem;
     border-radius: 0.5rem;
@@ -169,11 +169,15 @@ const deleteFeature = async () => {
         border: none;
         outline: none;
         border-radius: 0.5rem;
-        background-color: #444;
-        color: #ccc;
+        background-color: #777;
+        color: #f0f2f4;
 
         &::-webkit-scrollbar {
             display: none;
+        }
+
+        &::placeholder {
+            color: #ccc;
         }
     }
 

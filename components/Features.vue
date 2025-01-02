@@ -1,7 +1,5 @@
 <template>
     <div class="container" :style="{ left }">
-        <h2>Features</h2>
-
         <Feature :feature="newFeature" new-feature @feature-updated="updateFeature" />
 
         <hr />
@@ -47,37 +45,17 @@ const updateFeature = () => {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 2rem 0;
+    padding: 2rem;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
     transition: all 0.35s ease;
     // position: absolute;
-
-    h1 {
-        position: relative;
-        max-width: max-content;
-        margin: 0 auto;
-
-        &::before,
-        &::after {
-            content: "";
-            position: absolute;
-            top: 15px;
-            left: -225px;
-            width: 200px;
-            height: 10px;
-            border-top: 1px solid #a1ffa1;
-            border-bottom: 1px solid #a1ffa1;
-        }
-
-        &::after {
-            left: auto;
-            right: -225px;
-        }
-    }
+    background-color: #333;
 
     hr {
         border: none;
         outline: none;
-        border-top: 1px solid #333;
+        border-top: 1px solid #151515;
         width: 99%;
         margin: 0 auto;
     }
