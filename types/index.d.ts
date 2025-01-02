@@ -16,7 +16,7 @@ declare global {
     interface Feature {
         id: string;
         description: string;
-        user_story_id: string;
+        user_story_id?: string;
         created_at?: Date;
         updated_at?: Date;
         archived_at?: Date;

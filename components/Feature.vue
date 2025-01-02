@@ -1,7 +1,7 @@
 <template>
-    <div class="feature">
+    <div :class="['feature', { blurred }]">
         <textarea ref="textarea" v-model="input"
-            :placeholder="newFeature ? 'New feature...' : `Feature will be deleted if left blank in ${emptyCountdown}`"></textarea>
+            :placeholder="newFeature ? 'I want to...' : `Feature will be deleted if left blank in ${emptyCountdown}`"></textarea>
         <div class="flex">
             <button v-if="newFeature" class="green" @click="updateFeature">
                 <Icon name="ph:plus-bold" />
@@ -9,10 +9,6 @@
             </button>
 
             <div v-else class="actions">
-                <button :class="['expand']" @click="showFeatures = !showFeatures">
-                    <Icon :name="`ph:caret-${showFeatures ? 'up' : 'down'}-duotone`" />
-                    {{ showFeatures ? 'Hide' : 'Show' }} Features
-                </button>
                 <button :class="['red', { confirming }]" @click="handleDelete">
                     <div class="flex-small" v-if="!confirming">
                         <Icon name="ph:trash-duotone" />
@@ -23,33 +19,52 @@
                         <div>({{ countdown }})</div>
                     </div>
                 </button>
+                <button :class="['expand']" @click="expandFeature">
+                    {{ expandedFeature ? 'Hide' : 'Show' }} Tasks
+                    <Icon :name="`ph:arrow-fat-${expandedFeature ? 'left' : 'right'}-duotone`" />
+                </button>
             </div>
         </div>
-        <div v-if="feature.features?.length && showFeatures" class="features">
-            <button v-for="feature in feature.features" :key="feature.id" class="feature">
+        <!-- <div v-if="story.features?.length && showFeatures" class="features">
+            <button v-for="feature in story.features" :key="feature.id" class="feature">
                 <div>{{ feature.description }}</div>
                 <Icon name="ph:arrow-fat-right-duotone" />
             </button>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script setup lang="ts">
 import { useTextareaAutosize, watchDebounced } from "@vueuse/core";
 
+const expandedFeature = useExpandedFeature();
+
 const props = defineProps<{
-    feature: any;
+    feature: Feature;
     newFeature?: boolean;
+    // blurred?: boolean;
 }>();
 
 const emit = defineEmits(["feature-deleted", "feature-updated"]);
 
 const { textarea, input } = useTextareaAutosize();
 const initialRender = ref<boolean>(true);
-const showFeatures = ref<boolean>(false);
 
 onMounted(() => {
     input.value = props.feature.description;
+});
+
+const expandFeature = () => {
+    if (expandedFeature.value) {
+        expandedFeature.value = null;
+    }
+    else {
+        expandedFeature.value = props.feature;
+    }
+};
+
+const blurred = computed<boolean>(() => {
+    return expandedFeature.value !== null && expandedFeature.value.id !== props.feature.id;
 });
 
 watchDebounced(input, async () => {
@@ -65,7 +80,7 @@ watchDebounced(input, async () => {
         const interval = setInterval(async () => {
             emptyCountdown.value--;
             if (emptyCountdown.value === 0) {
-                await deletefeature();
+                await deleteFeature();
                 emptyCountdown.value = 15;
                 clearInterval(interval);
             }
@@ -86,7 +101,7 @@ const emptyCountdown = ref<number>(15);
 
 const handleDelete = async () => {
     if (confirming.value) {
-        await deletefeature();
+        await deleteFeature();
         return;
     }
 
@@ -102,11 +117,10 @@ const handleDelete = async () => {
 };
 
 const updateFeature = async () => {
-    console.log("this is running")
     if (!input.value || input.value === '') return;
 
     try {
-        await $fetch(`/api/user-feature/${props.feature.id}`, {
+        await $fetch(`/api/feature/${props.feature.id}`, {
             method: "PUT",
             body: JSON.stringify({
                 description: input.value,
@@ -119,9 +133,9 @@ const updateFeature = async () => {
     }
 };
 
-const deletefeature = async () => {
+const deleteFeature = async () => {
     try {
-        await $fetch(`/api/user-feature/${props.feature.id}`, {
+        await $fetch(`/api/feature/${props.feature.id}`, {
             method: "DELETE",
         });
         emit("feature-deleted");
@@ -133,11 +147,17 @@ const deletefeature = async () => {
 </script>
 
 <style scoped lang="scss">
-.feature {
+.user-story {
     background-color: #333;
     color: #ccc;
     padding: 1rem;
     border-radius: 0.5rem;
+    transition: all 0.35s ease;
+
+    &.blurred {
+        opacity: 0.05;
+        filter: blur(5px);
+    }
 
     textarea {
         width: 100%;
@@ -167,10 +187,10 @@ const deletefeature = async () => {
             gap: 1rem;
             margin-top: 1rem;
             width: 100%;
-            align-items: flex-start;
+            justify-content: space-between;
 
             .expand {
-                flex: 1;
+                // flex: 1;
                 background-color: #151515;
                 color: #ccc;
             }

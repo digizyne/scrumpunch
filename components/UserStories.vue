@@ -43,18 +43,18 @@ const updateStory = () => {
 
 <style lang="scss" scoped>
 .container {
-    width: 768px;
+    // width: 768px;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     padding: 2rem 0;
     transition: all 0.35s ease;
-    position: absolute;
+    // position: absolute;
 
     h1 {
         position: relative;
         max-width: max-content;
-        margin: auto;
+        margin: 0 auto;
 
         &::before,
         &::after {

@@ -38,6 +38,7 @@
 import { useTextareaAutosize, watchDebounced } from "@vueuse/core";
 
 const expandedStory = useExpandedStory();
+const expandedStoryFeatures = useExpandedStoryFeatures();
 
 const props = defineProps<{
     story: UserStory;
@@ -58,9 +59,11 @@ onMounted(() => {
 const expandStory = () => {
     if (expandedStory.value) {
         expandedStory.value = null;
+        expandedStoryFeatures.value = [];
     }
     else {
         expandedStory.value = props.story;
+        expandedStoryFeatures.value = props.story.features || [];
     }
 };
 
@@ -118,7 +121,6 @@ const handleDelete = async () => {
 };
 
 const updateStory = async () => {
-    console.log("this is running")
     if (!input.value || input.value === '') return;
 
     try {
