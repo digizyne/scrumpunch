@@ -1,13 +1,13 @@
 <template>
-    <div class="container" :style="{ left }">
+    <div>
         <h1 :class="{ blurred: expandedStory }">As a user</h1>
-
-        <UserStory :story="newStory" new-story @story-updated="updateStory" />
-
-        <hr :class="{ blurred: expandedStory }" />
-
-        <UserStory v-for="story in props.userStories" :key="story.id" :story="story" @story-deleted="emit('refresh')">
-        </UserStory>
+        <div class="container" :style="{ left }">
+            <UserStory :story="newStory" new-story @story-updated="updateStory" />
+            <hr :class="{ blurred: expandedStory }" />
+            <UserStory v-for="story in props.userStories" :key="story.id" :story="story"
+                @story-deleted="emit('refresh')">
+            </UserStory>
+        </div>
     </div>
 </template>
 
@@ -41,43 +41,60 @@ const updateStory = () => {
 </script>
 
 <style lang="scss" scoped>
+h1 {
+    position: relative;
+    max-width: max-content;
+    margin: 2rem auto 2rem auto;
+    transition: all 0.35s ease;
+
+    &.blurred {
+        opacity: 0.05;
+        filter: blur(5px);
+    }
+
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: -175px;
+        width: 150px;
+        height: 10px;
+        border-top: 1px solid #a288eb;
+        border-bottom: 1px solid #a288eb;
+    }
+
+    &::after {
+        left: auto;
+        right: -175px;
+    }
+}
+
 .container {
     // width: 768px;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 2rem 0;
+    // padding-bottom: 2rem;
     transition: all 0.35s ease;
+    overflow-y: auto;
+    height: 85vh;
+    scrollbar-width: none;
+    // position: relative;
+    // border: 3px solid blue;
     // position: absolute;
 
-    h1 {
-        position: relative;
-        max-width: max-content;
-        margin: 0 auto;
-        transition: all 0.35s ease;
-
-        &.blurred {
-            opacity: 0.05;
-            filter: blur(5px);
-        }
-
-        &::before,
-        &::after {
-            content: "";
-            position: absolute;
-            top: 15px;
-            left: -225px;
-            width: 200px;
-            height: 10px;
-            border-top: 1px solid #a1ffa1;
-            border-bottom: 1px solid #a1ffa1;
-        }
-
-        &::after {
-            left: auto;
-            right: -225px;
-        }
-    }
+    // &::after {
+    //     content: "";
+    //     position: absolute;
+    //     bottom: 0;
+    //     left: 0;
+    //     width: 35vw;
+    //     height: 100px;
+    //     background-color: rgba(0, 0, 0, 0.5);
+    //     filter: blur(2px);
+    //     backdrop-filter: blur(10px);
+    // }
 
     hr {
         border: none;

@@ -159,6 +159,7 @@ const deleteStory = async () => {
     padding: 1rem;
     border-radius: 0.5rem;
     transition: all 0.35s ease;
+    border-left: 10px solid #a288eb;
 
     &.expanded {
         border-top-right-radius: 0;

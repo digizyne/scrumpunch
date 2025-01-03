@@ -46,16 +46,19 @@ const updateFeature = () => {
     flex-direction: column;
     gap: 1rem;
     padding: 2rem;
-    margin-top: 1rem;
+    margin: 1rem 0;
     border-radius: 0.5rem;
     transition: all 0.35s ease;
     // position: absolute;
     background-color: #333;
+    height: calc(100vh - 2rem);
+    overflow-y: auto;
+    scrollbar-width: none;
 
     hr {
         border: none;
         outline: none;
-        border-top: 1px solid #151515;
+        border-top: 1px solid #575757;
         width: 99%;
         margin: 0 auto;
     }

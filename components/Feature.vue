@@ -153,6 +153,7 @@ const deleteFeature = async () => {
     padding: 1rem;
     border-radius: 0.5rem;
     transition: all 0.35s ease;
+    border-left: 10px solid #58caf0;
 
     &.blurred {
         opacity: 0.05;

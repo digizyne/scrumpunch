@@ -3,7 +3,7 @@
         <div v-if="status === 'pending'">Loading user stories...</div>
         <div v-else-if="error">{{ error }}</div>
         <div v-else-if="userStories && userStories.length > 0" class="grid" :style="{ left }" ref="grid">
-            <UserStories :user-stories="userStories" />
+            <UserStories :user-stories="userStories" @refresh="refresh" />
             <!-- <Transition> -->
             <Features v-if="expandedStory" :features="expandedStoryFeatures" />
             <!-- </Transition> -->
@@ -40,7 +40,7 @@ const left = computed<string>(() => {
 .index {
     position: relative;
     padding: 0 1rem;
-    overflow-x: hidden;
+    overflow: hidden;
     // overflow: hidden;
     // background-color: blue;
     width: 100vw;
