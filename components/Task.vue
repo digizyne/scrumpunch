@@ -1,9 +1,9 @@
 <template>
-    <div :class="['feature', { blurred }]">
+    <div :class="['task']">
         <textarea ref="textarea" v-model="input"
-            :placeholder="newFeature ? 'New feature...' : `Feature will be deleted if left blank in ${emptyCountdown}`"></textarea>
+            :placeholder="newTask ? 'New task...' : `Task will be deleted if left blank in ${emptyCountdown}`"></textarea>
         <div class="flex">
-            <button v-if="newFeature" class="green" @click="updateFeature">
+            <button v-if="newTask" class="green" @click="updateTask">
                 <Icon name="ph:plus-bold" />
                 Create
             </button>
@@ -19,55 +19,26 @@
                         <div>({{ countdown }})</div>
                     </div>
                 </button>
-                <button :class="['expand']" @click="expandFeature">
-                    {{ expandedFeature ? 'Hide' : 'Show' }} Tasks
-                    <Icon :name="`ph:arrow-fat-${expandedFeature ? 'left' : 'right'}-duotone`" />
-                </button>
             </div>
         </div>
-        <!-- <div v-if="story.features?.length && showFeatures" class="features">
-            <button v-for="feature in story.features" :key="feature.id" class="feature">
-                <div>{{ feature.description }}</div>
-                <Icon name="ph:arrow-fat-right-duotone" />
-            </button>
-        </div> -->
     </div>
 </template>
 
 <script setup lang="ts">
 import { useTextareaAutosize, watchDebounced } from "@vueuse/core";
 
-const expandedFeature = useExpandedFeature();
-const expandedFeatureTasks = useExpandedFeatureTasks();
-
 const props = defineProps<{
-    feature: Feature;
-    newFeature?: boolean;
-    // blurred?: boolean;
+    task: Task;
+    newTask?: boolean;
 }>();
 
-const emit = defineEmits(["feature-deleted", "feature-updated"]);
+const emit = defineEmits(["task-deleted", "task-updated"]);
 
 const { textarea, input } = useTextareaAutosize();
 const initialRender = ref<boolean>(true);
 
 onMounted(() => {
-    input.value = props.feature.description;
-});
-
-const expandFeature = () => {
-    if (expandedFeature.value) {
-        expandedFeature.value = null;
-        expandedFeatureTasks.value = [];
-    }
-    else {
-        expandedFeature.value = props.feature;
-        expandedFeatureTasks.value = props.feature.tasks || [];
-    }
-};
-
-const blurred = computed<boolean>(() => {
-    return expandedFeature.value !== null && expandedFeature.value.id !== props.feature.id;
+    input.value = props.task.description;
 });
 
 watchDebounced(input, async () => {
@@ -76,22 +47,22 @@ watchDebounced(input, async () => {
         return;
     }
     if (!input.value || input.value === '') {
-        if (props.newFeature) {
+        if (props.newTask) {
             return;
         }
 
         const interval = setInterval(async () => {
             emptyCountdown.value--;
             if (emptyCountdown.value === 0) {
-                await deleteFeature();
+                await deleteTask();
                 emptyCountdown.value = 15;
                 clearInterval(interval);
             }
         }, 1000);
     }
 
-    else if (!props.newFeature) {
-        await updateFeature();
+    else if (!props.newTask) {
+        await updateTask();
     }
 }, {
     debounce: 2500,
@@ -104,7 +75,7 @@ const emptyCountdown = ref<number>(15);
 
 const handleDelete = async () => {
     if (confirming.value) {
-        await deleteFeature();
+        await deleteTask();
         return;
     }
 
@@ -119,29 +90,29 @@ const handleDelete = async () => {
     }, 1000);
 };
 
-const updateFeature = async () => {
+const updateTask = async () => {
     if (!input.value || input.value === '') return;
 
     try {
-        await $fetch(`/api/feature/${props.feature.id}`, {
+        await $fetch(`/api/task/${props.task.id}`, {
             method: "PUT",
             body: JSON.stringify({
                 description: input.value,
             }),
         });
-        emit("feature-updated");
+        emit("task-updated");
     }
     catch (err: any) {
         console.log(err.response);
     }
 };
 
-const deleteFeature = async () => {
+const deleteTask = async () => {
     try {
-        await $fetch(`/api/feature/${props.feature.id}`, {
+        await $fetch(`/api/task/${props.task.id}`, {
             method: "DELETE",
         });
-        emit("feature-deleted");
+        emit("task-deleted");
     }
     catch (err: any) {
         console.log(err.response);
@@ -150,18 +121,13 @@ const deleteFeature = async () => {
 </script>
 
 <style scoped lang="scss">
-.feature {
+.task {
     background-color: #575757;
     color: #ccc;
     padding: 1rem;
     border-radius: 0.5rem;
     transition: all 0.35s ease;
-    border-left: 10px solid #58caf0;
-
-    &.blurred {
-        opacity: 0.0;
-        filter: blur(5px);
-    }
+    border-left: 10px solid #f4f995;
 
     textarea {
         width: 100%;

@@ -7,7 +7,7 @@
             <!-- <Transition> -->
             <Features v-if="expandedStory" :features="expandedStoryFeatures" />
             <!-- </Transition> -->
-            <!-- <UserStories :user-stories="userStories" /> -->
+            <Tasks v-if="expandedFeature" :tasks="expandedFeatureTasks" />
         </div>
         <div v-else>No user stories found.</div>
     </div>
@@ -18,8 +18,10 @@ import { useElementSize } from "@vueuse/core"
 
 const expandedStory = useExpandedStory();
 const expandedStoryFeatures = useExpandedStoryFeatures();
+const expandedFeature = useExpandedFeature();
+const expandedFeatureTasks = useExpandedFeatureTasks();
 
-const { data: userStories, error, status, refresh } = await useLazyFetch<UserStory[]>("/api/user-story?include_features=true");
+const { data: userStories, error, status, refresh } = await useLazyFetch<UserStory[]>("/api/user-story?include_features=true&include_tasks=true");
 
 // const gridTemplateColumns = computed<string>(() => {
 //     return expandedStory.value ? "1fr 1fr 0" : "768px 0 0";
@@ -32,7 +34,14 @@ const grid = ref<HTMLDivElement | null>(null);
 const { width } = useElementSize(grid);
 
 const left = computed<string>(() => {
-    return expandedStory.value ? `calc(50vw - ${width.value / 3}px)` : `calc(50vw - ${width.value / 6}px)`;
+    if (expandedStory.value) {
+        if (expandedFeature.value) {
+            return `1rem`;
+        }
+        return `calc(50vw - ${width.value / 3}px)`
+    }
+    return `calc(50vw - ${width.value / 6}px)`;
+    // return expandedStory.value ? `calc(50vw - ${width.value / 3}px)` : `calc(50vw - ${width.value / 6}px)`;
 });
 </script>
 
@@ -43,7 +52,7 @@ const left = computed<string>(() => {
     overflow: hidden;
     // overflow: hidden;
     // background-color: blue;
-    width: 100vw;
+    width: calc(100vw - 1rem);
     height: 100vh;
 
     .grid {

@@ -1,12 +1,11 @@
 <template>
-    <div :class="['container', { expanded: expandedFeature }]" :style="{ left }">
-        <Feature :feature="newFeature" new-feature @feature-updated="updateFeature" />
+    <div :class="['container', { expanded: expandedFeature }]">
+        <Task :task="newTask" new-task @task-updated="updateTask" />
 
-        <hr :class="{ blurred: expandedFeature }" />
+        <hr />
 
-        <Feature v-for="feature in props.features" :key="feature.id" blurred :feature="feature"
-            @feature-deleted="emit('refresh')">
-        </Feature>
+        <Task v-for="task in props.tasks" :key="task.id" :task="task" @task-deleted="emit('refresh')">
+        </Task>
     </div>
 </template>
 
@@ -16,22 +15,18 @@ import { v4 as uuidv4 } from 'uuid';
 const expandedFeature = useExpandedFeature();
 
 const props = defineProps<{
-    features: Feature[];
+    tasks: Task[];
 }>();
 
 const emit = defineEmits(["refresh"]);
 
-const newFeature = ref<Feature>({
+const newTask = ref<Feature>({
     id: uuidv4(),
     description: "",
 });
 
-const left = computed<string>(() => {
-    return expandedFeature.value ? "1rem" : "calc(50% - 384px)";
-})
-
-const updateFeature = () => {
-    newFeature.value = {
+const updateTask = () => {
+    newTask.value = {
         id: uuidv4(),
         description: "",
     };
@@ -56,8 +51,8 @@ const updateFeature = () => {
     scrollbar-width: none;
 
     &.expanded {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
     }
 
     hr {
@@ -66,11 +61,6 @@ const updateFeature = () => {
         border-top: 1px solid #575757;
         width: 99%;
         margin: 0 auto;
-
-        &.blurred {
-            opacity: 0.05;
-            filter: blur(5px);
-        }
     }
 }
 </style>
